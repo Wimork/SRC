@@ -1,3 +1,4 @@
+// Array of control points for two Bézier curves
 let p = [
   {x: Math.random() * 1000, y: Math.random() * 1000},
   {x: Math.random() * 1000, y: Math.random() * 1000},
@@ -9,16 +10,19 @@ let p = [
   {x: Math.random() * 1000, y: Math.random() * 1000}
 ];
 
+// Points on the curves being computed
 let pC = [
   {x: undefined, y: undefined},
   {x: undefined, y: undefined}
 ];
 
+// Bounding boxes for the two curves
 let BB = [
   {xmin: 1000, xmax: 0, ymin: 1000, ymax: 0},
   {xmin: 1000, xmax: 0, ymin: 1000, ymax: 0}
 ];
 
+// Track which point is being dragged
 let draggingPoint = null;
 
 function setup() {
@@ -29,16 +33,19 @@ function setup() {
 function draw() {
   background(255);
   
+  // Initialize new bounding boxes
   let newBB = [
     { xmin: 1000, xmax: 0, ymin: 1000, ymax: 0 },
     { xmin: 1000, xmax: 0, ymin: 1000, ymax: 0 }
   ];
 
+  // Compute Bézier curves and update bounding boxes
   for (let t = 0; t < 1; t += 0.001) {
     let P1 = computeBezier(p.slice(0, 4), t);
     let P2 = computeBezier(p.slice(4, 8), t);
     pC = [P1, P2];
 
+    // Update bounding boxes
     newBB[0].xmin = min(P1.x, newBB[0].xmin);
     newBB[0].xmax = max(P1.x, newBB[0].xmax);
     newBB[0].ymin = min(P1.y, newBB[0].ymin);
@@ -49,6 +56,7 @@ function draw() {
     newBB[1].ymin = min(P2.y, newBB[1].ymin);
     newBB[1].ymax = max(P2.y, newBB[1].ymax);
 
+    // Draw points on the curves
     fill(0, 255, 0);
     noStroke();
     circle(P1.x, P1.y, 5);
@@ -62,6 +70,7 @@ function draw() {
   drawIntersectionBox(BB);
 }
 
+// Compute a point on a cubic Bézier curve using the de Casteljau algorithm
 function computeBezier(points, t) {
   let x = (1 - t) * ((1 - t) * ((1 - t) * points[0].x + points[1].x * t) + ((1 - t) * points[1].x + points[2].x * t) * t) + 
           ((1 - t) * ((1 - t) * points[1].x + points[2].x * t) + ((1 - t) * points[2].x + points[3].x * t) * t) * t;
@@ -70,6 +79,7 @@ function computeBezier(points, t) {
   return {x, y};
 }
 
+// Draw control points of Bézier curves
 function drawControlPoints() {
   for (let i = 0; i < p.length; i++) {
     fill(i < 4 ? color(0, 255, 0) : color(255, 0, 0));
@@ -78,6 +88,7 @@ function drawControlPoints() {
   }
 }
 
+// Draw bounding boxes for Bézier curves
 function drawBoundingBox(BB) {
   for (let i = 0; i < BB.length; i++) {
     stroke(1);
@@ -91,6 +102,7 @@ function drawBoundingBox(BB) {
   }
 }
 
+// Draw a red box marking the intersection of bounding boxes
 function drawIntersectionBox(BB) {
   let xOverlapMin = max(BB[0].xmin, BB[1].xmin);
   let xOverlapMax = min(BB[0].xmax, BB[1].xmax);
@@ -104,6 +116,7 @@ function drawIntersectionBox(BB) {
   }
 }
 
+// Detect if a control point is clicked
 function mousePressed() {
   for (let i = 0; i < p.length; i++) {
     if (dist(mouseX, mouseY, p[i].x, p[i].y) < 10) {
@@ -113,6 +126,7 @@ function mousePressed() {
   }
 }
 
+// Update position of dragged control point
 function mouseDragged() {
   if (draggingPoint !== null) {
     p[draggingPoint].x = mouseX;
@@ -120,6 +134,7 @@ function mouseDragged() {
   }
 }
 
+// Release control point after dragging
 function mouseReleased() {
   draggingPoint = null;
 }
